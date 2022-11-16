@@ -379,10 +379,19 @@ int process_command(struct command_t *command) {
   
     //execvp(command->name, command->args); // exec+args+path
     exit(0);
-  } else {
+  } else { // Parent Process
+  
+// Question 1: ampersand (&) problem starts:
     // TODO: implement background processes here
-    wait(0); // wait for child process to finish
-    return SUCCESS;
+    
+      int status;
+      if(command->background == false){
+
+	   waitpid(pid, &status, 0);
+
+      }
+      return SUCCESS;
+// Question 1: ampersand (&) problem ends.
   }
 
   // TODO: your implementation here
