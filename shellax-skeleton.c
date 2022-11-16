@@ -378,6 +378,56 @@ int main() {
               
  }  */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// Question 3 part d starts: our first custom command: last_x_lines // last fileName number_of_lines
+
+// creating stack of lines
+struct stack
+{
+          char strings[100];
+};
+
+
+ void last_x_lines(struct command_t *command){
+
+             // stucture initialization    
+              struct stack s[100];
+
+              FILE *file;
+              char line[100];
+         
+              int n,count=0, i=0;
+
+              file  = fopen(command->args[1], "r");
+         
+              // reading line by line and push to stack
+              while(fscanf(file , "%[^\n]\n" , line)!=EOF) {
+                             strcpy(s[i].strings , line);
+                             i++;
+                             n=i; 
+               }
+               //n = i = total number of lines
+               int numberOfLines = atoi(command->args[2]);
+               // pop line by line
+               for(i=(n-1);i>=0;i--) {
+               
+                        // last numberOfLines lines  
+                         if(count == numberOfLines){
+         
+                               break;
+                         } else {
+
+                               printf("%s\n" , s[i].strings);
+                         }
+                         count++;                        
+               }
+}
+// Question 3 part d starts: our first custom command: ENDs.
+
+
+
 void myUniq(struct command_t *command){ // our uniq function
 
      char buffer[600];
@@ -469,6 +519,16 @@ int process_command(struct command_t *command) {
 	//return SUCCESS;
   }
   // Question 3 part c (WISEMAN) ends.
+  
+  
+    // Question 3 part d starts: our first custom command:  //last fileName number_of_lines
+  if (strcmp(command->name,"last") == 0) {
+         
+          last_x_lines(command);
+          return SUCCESS;
+  }
+  
+  // Question 3 part d: our first custom command ENDs.
   
   
   
