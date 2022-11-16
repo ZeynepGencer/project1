@@ -427,6 +427,44 @@ struct stack
 // Question 3 part d starts: our first custom command: ENDs.
 
 
+// Question 3 part d starts: our second custom command: first_x_lines // first fileName number_of_lines
+ void first_x_lines(struct command_t *command){
+
+             // stucture initialization    
+              struct stack s[100];
+
+              FILE *file;
+              char line[100];
+         
+              int count=0, i=0;
+
+              file  = fopen(command->args[1], "r");
+         
+              // reading line by line and push to stack
+              while(fscanf(file , "%[^\n]\n" , line)!=EOF) {
+                             strcpy(s[i].strings , line);
+                             i++;
+               }
+               
+               int total_numberOfLines = i; //total number of lines
+               int numberOfLines = atoi(command->args[2]);
+               // pop line by line
+               for(int n=0;n < total_numberOfLines;n++) {
+                        
+                        // last numberOfLines lines  
+                         if(count == numberOfLines){                              
+                               break;
+                         } else {
+                               printf("%s\n" , s[n].strings);
+                         }
+                         count++;                        
+               }
+}
+ 
+ 
+// Question 3 part d starts: our second custom command: ENDs.
+
+
 
 void myUniq(struct command_t *command){ // our uniq function
 
@@ -530,6 +568,14 @@ int process_command(struct command_t *command) {
   
   // Question 3 part d: our first custom command ENDs.
   
+  
+  // Question 3 part d starts: our second custom command:  // first fileName number_of_lines
+   if (strcmp(command->name,"first") == 0) {
+         
+          first_x_lines(command);
+          return SUCCESS;
+  }
+  // Question 3 part d starts: our second custom command ENDs:
   
   
   
