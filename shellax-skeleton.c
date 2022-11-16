@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include <termios.h> // termios, TCSANOW, ECHO, ICANON
 #include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
 const char *sysname = "shellax";
 
 enum return_codes {
@@ -352,6 +354,32 @@ int process_command(struct command_t *command) {
 
     // TODO: do your own exec with path resolving using execv()
     // do so by replacing the execvp call below
+    
+    
+// Question 2 part 1: I/O redirection problem starts:
+     if(command->redirects[0] != NULL){
+     
+       int in = open(command->redirects[0], O_RDONLY);
+       dup2(in, STDIN_FILENO);         // duplicate stdin to input file
+       close(in);                      // close after use
+     }
+     if(command->redirects[1] != NULL){
+    
+       int out =open(command->redirects[1], O_WRONLY | O_CREAT | O_TRUNC,
+                    S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // open(command->redirects[1],O_CREAT | O_TRUNC | O_WRONLY);
+       dup2(out, STDOUT_FILENO);         // duplicate stdout to output file
+       close(out);                      // close after use
+     }
+
+     if(command->redirects[2] != NULL){
+     
+         int out2 = open(command->redirects[2], O_CREAT | O_RDWR | O_APPEND);
+         dup2(out2, STDOUT_FILENO);         // duplicate stdout to output file
+         close(out2);
+    }
+// Question 2 part 1: I/O redirection problem ends.
+
+
     
     
     
