@@ -333,6 +333,69 @@ int main() {
   return i;
 } */
 
+
+void myUniq(struct command_t *command){ // our uniq function
+
+     char buffer[600];
+     char **lines = NULL;
+     int i = 0;
+    
+     while (fgets(buffer, sizeof(buffer), stdin)){
+     
+        lines = realloc(lines, (i + 1) * sizeof (char*));
+        lines[i] = strdup(buffer);
+        i++;
+     }
+     
+     int fr[i];
+     int visited = -1; // to show an element is visited or not.
+
+     for(int c = 0; c < i; c++){
+     
+        int count = 1;
+        for(int j = c+1; j < i; j++){
+        
+            if(strcmp(lines[c],lines[j])== 0){
+            
+                count++;
+                //To avoid counting same element again
+                fr[j] = visited;
+            }
+        }
+        if(fr[c] != visited)
+            fr[c] = count; // to determine the number of occurrences of the element.
+     }
+
+     if(command->args[1] == NULL){
+
+             for(int c = 0; c < i; c++){
+             
+                if(fr[c] != visited){
+                
+                   printf("%s",lines[c]);
+                }
+             }
+     } else if(strcmp(command->args[1],"-c")==0 || strcmp(command->args[1],"-C")==0 ){
+     
+           for(int c = 0; c < i; c++){
+           
+               if(fr[c] != visited){
+               
+                  printf("%d %s",fr[c],lines[c]);      
+               }
+           }
+
+    } 
+  
+    for (int c = 0; c < i; c++) {
+        free(lines[c]);
+    }
+
+    // free() the array itself
+   // free(lines);
+}
+
+
 int process_command(struct command_t *command) {
   int r;
   if (strcmp(command->name, "") == 0)
@@ -402,7 +465,16 @@ if(child_num > 1){  //We used if to distinguish whether there are pipes or not.
                 dup2(pipefd[1], 1);//write the output of this command to pipe
             }
     
-            execvp(next_command->name,next_command->args);    	  
+            // Question 3 uniq command starts:  
+            if(strcmp(next_command->name, "myuniq") == 0){ //Our uniq command.
+            
+                myUniq(next_command);
+            // Question 3 uniq command ends. 
+            }else{
+		  
+                execvp(next_command->name,next_command->args);
+	   }
+	   	  
             exit(1);
         } else { //parent process
         
