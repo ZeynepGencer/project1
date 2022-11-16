@@ -324,6 +324,15 @@ int main() {
   return 0;
 }
 
+ /* int count_command(struct command_t *command) { The other way to calculate number of process:
+
+  if (command->next) {
+      i = i + 1;
+      count_command(command->next);
+  }
+  return i;
+} */
+
 int process_command(struct command_t *command) {
   int r;
   if (strcmp(command->name, "") == 0)
@@ -340,6 +349,78 @@ int process_command(struct command_t *command) {
       return SUCCESS;
     }
   }
+  
+   // int c = count_command(command); Another way to calculate the number of pipes and processes is to call a function directly.
+   // i = 1;
+   
+// Question 2 Part 2 starts:   
+
+     // Calculating number of process and pipe.
+     int child_num = 1; // number of child process
+     struct command_t *new = command;
+     while (new->next){
+	   child_num = child_num + 1;
+	  new = new->next;
+    }
+  
+    int pipe_count = child_num - 1 ;
+    int exit_value;
+    int infd;
+    int pipefd[2];
+   struct command_t *next_command = command;
+   
+// when there are pipes:
+if(child_num > 1){  //We used if to distinguish whether there are pipes or not. 
+
+
+    //loop through pipe commands
+    for (int i = 0; i <= pipe_count; i++) {
+    
+        //create new pipe for cmd i
+        if (pipe(pipefd) == -1) {
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+        //fork child to handle cmd
+        pid_t pid;
+        pid = fork();
+        if (pid == -1) {
+            perror("fork");
+            //return;
+        } else if(pid == 0) { // child process
+        
+            //for all but first cmd, connect stdin with pipefd[0]          
+            if(i != 0) {
+	
+                dup2(infd, 0); //put what you read from pipe in the input of this command
+            }
+
+
+            //for all but last cmd, connect stdout with pipefd[1]
+            if (i != pipe_count) {
+		
+                dup2(pipefd[1], 1);//write the output of this command to pipe
+            }
+    
+            execvp(next_command->name,next_command->args);    	  
+            exit(1);
+        } else { //parent process
+        
+            //wait and store pipefd[0] for next iteration
+            wait(&exit_value);
+            infd = pipefd[0];
+            // close(pipefd[0]);
+	    close(pipefd[1]);
+	    next_command = next_command->next;
+        }
+    }
+     
+     return SUCCESS; 
+// Question 2 Part 2 ends.
+
+} else if(child_num == 1){ // There are no pipes.
+
+
 
   pid_t pid = fork();
   if (pid == 0) // child
@@ -420,6 +501,7 @@ int process_command(struct command_t *command) {
       }
       return SUCCESS;
 // Question 1: ampersand (&) problem ends.
+  }
   }
 
   // TODO: your implementation here
