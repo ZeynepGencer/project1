@@ -333,7 +333,51 @@ int main() {
   return i;
 } */
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Our second solution for the wiseman question:
+
+  /* void wiseman(struct command_t *command){
+     
+    int exit_value;
+    int infd;
+    int pipefd[2];
+    // char *crontab_args[] = {"crontab", "-", NULL};
+    // char str1[1000] = //*/;
+ /*      strcat(str1,command->args[1]);
+    char str2[] = " * * * * fortune | espeak";
+    strcat(str1,str2);
+    // strcat(str1,"\n"); //end of the file ?????
+    
+
+      if (pipe(pipefd) == -1) {
+            perror("pipe");
+            exit(EXIT_FAILURE);
+        }
+        //fork child to handle cmd
+        pid_t pid;
+        pid = fork();
+        if (pid == -1) {
+            perror("fork");
+            return;
+        } else if(pid == 0) { // child process
+
+               close(pipefd[1]);
+               dup2(pipefd[0], 0);
+	       char *crontab_args[] = {"crontab", "-", NULL};
+	       execvp("crontab",crontab_args);
+	       printf("errno: %d\f", errno);
+	       exit(0);
+	       
+	}else{
+
+               write(pipefd[1],&str1,strlen(str1)+1);
+	       close(pipefd[0]);
+	       close(pipefd[1]);
+       }
+              
+ }  */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void myUniq(struct command_t *command){ // our uniq function
 
      char buffer[600];
@@ -396,6 +440,8 @@ void myUniq(struct command_t *command){ // our uniq function
 }
 
 
+
+
 int process_command(struct command_t *command) {
   int r;
   if (strcmp(command->name, "") == 0)
@@ -412,6 +458,20 @@ int process_command(struct command_t *command) {
       return SUCCESS;
     }
   }
+  
+   // Question 3 part c (WISEMAN) starts:
+  if (strcmp(command->name, "wiseman") == 0){
+       
+       // wiseman(command); //Our second solution for the wiseman question.
+  	char ptr[100];
+  	sprintf(ptr,"echo '*/%s * * * * fortune | espeak -s 125 -v en-uk+m5' | crontab -",command->args[1]); // for clearer voice
+	system(ptr);
+	//return SUCCESS;
+  }
+  // Question 3 part c (WISEMAN) ends.
+  
+  
+  
   
    // int c = count_command(command); Another way to calculate the number of pipes and processes is to call a function directly.
    // i = 1;
