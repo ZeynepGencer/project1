@@ -962,8 +962,7 @@ int process_command(struct command_t *command) {
 	else{
     	 	printf("No module to remove\n");
     	}
-    	//How to hide this 
-	int a= system("dmesg -c");
+	system("dmesg -C");
 }
   }
   //Question 5 (PSVIS) ends
