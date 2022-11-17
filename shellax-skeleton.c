@@ -8,6 +8,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <linux/module.h>    /* Definition of MODULE_* constants */
+#include <sys/syscall.h>     /* Definition of SYS_* constants */
+
 const char *sysname = "shellax";
 
 enum return_codes {
@@ -602,7 +609,117 @@ int process_command(struct command_t *command) {
       return SUCCESS;
     }
   }
-  
+  // Question 3 part b (CHATROOM) starts:
+  struct stat st = {0};
+  if (strcmp(command->name, "chatroom") == 0){
+   if (command->arg_count > 3) { //change 0 to 3 to check the name folder
+        char path[150] = "/tmp/chatroom-";
+    	strcat(path, command->args[1]);
+   	if (stat(path, &st) == -1) { //if chatroom does not exist create one 
+    		mkdir(path, 0700);
+	}
+	printf("Welcome to %s!\n",command->args[1]);
+	
+	char dirpath[50];
+	strcpy(dirpath, path); //directory path
+
+	strcat(path, "/");
+	strcat(path, command->args[2]);
+	char  myfifo[150];
+	strcpy(myfifo,path);
+        mkfifo(path, S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH); // create pipe , S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH
+
+	int fd;
+	int fd1;
+	char str1[180], str2[185],str3[180];
+	pid_t pid;
+  	pid=fork();
+  	if (pid< 0) 
+  	{ 
+            	perror("fork error happened");
+            	exit(1);
+        } 
+        else if(pid==0) //child process
+        {	
+   		while (1)
+    		{
+    			//read user pipe all the time 
+        		fd1 = open(myfifo,O_RDONLY,O_NONBLOCK);
+        		
+        		int a= read(fd1, str1, 180);
+        		printf("\r%s", str1);
+        		printf("%s> ", command->args[2]);
+        		fflush(stdout);
+        		close(fd1);
+		}
+		
+		
+	}
+	else // write the input you get from terminal PARENT
+	{	
+		
+		while(1){
+
+		fflush(stdout);
+   		fgets( str3,180,stdin);
+   		printf("\033[A");
+   		fflush(stdout);
+   		sprintf(str2,"%s: %s",command->args[2],str3);
+ 
+		//GET PIPE COUNT 
+		char *arr[50];
+    		char **ptr = arr;
+		int file_count = 0;
+		DIR * dirp;
+		struct dirent * entry;      				
+		dirp = opendir(dirpath);
+       
+		while ((entry = readdir(dirp)) != NULL) {
+	
+   	 		if (entry->d_type == DT_FIFO  ) { /* If the entry is a named pipe */  	 
+        			ptr[file_count]=entry->d_name;
+         			file_count++;
+         		//printf("pipe count %d\n",file_count);
+    			}
+		}	
+		closedir(dirp);
+		//PIPE PATH
+		int i;
+		strcat(dirpath,"/");
+		for ( i = 0; i < file_count; i++ ){
+	
+			char *tmp = strdup(ptr[i]);
+			strcpy(ptr[i], dirpath); 
+			strcat(ptr[i], tmp);  
+			free(tmp);
+        		//printf("String %d : %s\n", i+1, ptr[i] );//DEBUG             
+ 			}
+		for( i = 0; i < file_count; i++) // write to all  children
+			{
+			   		
+   			if (pid< 0) 
+  				{ 
+            			perror("fork error happened");
+            			exit(1);
+        			} 
+        		else if(pid>0) //parent process
+        			{
+				pid=fork();
+				}
+			if(pid== 0) // child process 
+        			{ 
+        			//printf("writing to file %s\n",ptr[i]);//DEBUG
+        			fd = open(ptr[i],O_WRONLY,O_NONBLOCK);
+        			write(fd, str2, strlen(str2)+1);
+        			close(fd);
+        			exit(0);
+        			}	
+			}
+		}
+	}	
+    }
+  }
+  // Question 3 part b (CHATROOM) ends.
    // Question 3 part c (WISEMAN) starts:
   if (strcmp(command->name, "wiseman") == 0){
        
@@ -652,7 +769,6 @@ int process_command(struct command_t *command) {
   }
   
     //Question 3 part d starts: our third custom command ENDs:
-  
   
    // int c = count_command(command); Another way to calculate the number of pipes and processes is to call a function directly.
    // i = 1;
