@@ -627,8 +627,11 @@ int process_command(struct command_t *command) {
 	strcat(path, command->args[2]);
 	char  myfifo[150];
 	strcpy(myfifo,path);
-        mkfifo(path, S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH); // create pipe , S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH
 
+   	if (stat(path, &st) == -1) { //if fifo does not exist create one 
+    	 mkfifo(path, S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH); // create pipe , S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH
+    	 //printf("OH HELLO NEW USER");
+	}
 	int fd;
 	int fd1;
 	char str1[180], str2[185],str3[180];
