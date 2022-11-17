@@ -14,7 +14,7 @@
 #include <dirent.h>
 #include <linux/module.h>    /* Definition of MODULE_* constants */
 #include <sys/syscall.h>     /* Definition of SYS_* constants */
-
+#define ROOT_UID    0
 const char *sysname = "shellax";
 
 enum return_codes {
@@ -769,7 +769,204 @@ int process_command(struct command_t *command) {
   }
   
     //Question 3 part d starts: our third custom command ENDs:
-  
+    
+    //Question 5 (PSVIS) starts:
+    if (strcmp(command->name, "psvis") == 0){
+    if (command->arg_count > 0) {
+	uid_t uid;
+    	int res;
+
+   	 /* Check if program being run by root */
+    	uid = getuid();
+    	if (uid != ROOT_UID) {
+    		system("sudo -s");
+    	}
+
+    	/* Check if module file exists */
+    	if (access("./mymodule.ko", F_OK) == -1) {
+        	fprintf(stderr, "Error: File doesn't exist\n");
+    	}
+
+	if(system("lsmod | grep mymodule")){
+	
+    	/* Load module */
+    	char str[100];
+    	sprintf(str,"/sbin/insmod ./mymodule.ko pid=%d",atoi(command->args[1]));
+
+    	res = system(str);
+    		if (res != 0) {
+        		fprintf(stderr, "Error loading module: %d\n", res);
+        		//return EXIT_FAILURE;
+    		}
+    	printf("Module was successfully loaded\n");
+	}
+	else{
+	printf("Module is already loaded\n");
+	}
+	
+	system("dmesg | grep mymodulePID: > pid");
+	system("dmesg | grep mymoduleParentPID: > ppid");
+	system("dmesg | grep mymoduleTime > startTime");
+	
+	
+	// READ PID ///
+	FILE * fp;
+    	char * line = NULL;
+    	size_t len = 0;
+    	ssize_t read;
+	char *pid;
+	int pidArr[1000];
+    	int i=0;
+    	
+    	fp = fopen("pid", "r");
+    	if (fp == NULL)
+        	exit(EXIT_FAILURE);
+
+    	while ((read = getline(&line, &len, fp)) != -1) {
+       	 	pid = strtok(line, ":");
+       	 	pid = strtok(NULL, ":");
+       	 	pidArr[i]=atoi(pid);
+       	 	//printf("Retrieved the pid: %d\n", pidArr[i]);
+       	 	i++;
+   	 }
+   	 fclose(fp);
+
+   	 ///  PID READING OVER // 
+   	 
+
+   	 // PARENT READ PID ///
+	FILE * fp2;
+    	char * line2 = NULL;
+    	size_t len2 = 0;
+    	ssize_t read2;
+	char *ppid;
+	int ppidArr[1000];
+    	i=0;
+    	
+    	fp2 = fopen("ppid", "r");
+    	if (fp2 == NULL)
+        	exit(EXIT_FAILURE);
+
+    	while ((read2 = getline(&line2, &len2, fp2)) != -1) {
+       	 	ppid = strtok(line2, ":");
+       	 	ppid = strtok(NULL, ":");
+       	 	ppidArr[i]=atoi(ppid);
+       	 	//printf("Retrieved the ppid: %d\n", ppidArr[i]);
+       	 	i++;
+   	 }
+   	 fclose(fp2);
+
+   	 /// PARENT PID READING OVER // 
+   	 
+   	// TIME READ  ///
+	FILE * fp3;
+    	char * line3 = NULL;
+    	size_t len3 = 0;
+    	ssize_t read3;
+	char *taym;
+	char *startArr[1000];
+    	i=0;
+    	
+    	fp3 = fopen("startTime", "r");
+    	if (fp3 == NULL)
+        	exit(EXIT_FAILURE);
+
+    	while ((read3 = getline(&line3, &len3, fp3)) != -1) {
+       	 	taym = strtok(line3, ":");
+       	 	taym = strtok(NULL, ":");
+       	 	startArr[i]=taym;
+       	 	//printf("Retrieved the time: %s\n", startArr[i]);
+       	 	i++;
+   	 }
+   	 fclose(fp3);
+
+   	 /// TIME READING OVER // 
+   	 int max=i;
+   	 //FIND OLDEST CHILD Uğrascam 
+   	 
+   	 system("dmesg | grep mymoduleOLD > olds");
+   	 FILE * fp4;
+    	char * line4 = NULL;
+    	size_t len4 = 0;
+    	ssize_t read4;
+	char *old;
+	int oldArr[1000];
+    	i=0;
+    	
+    	fp4 = fopen("olds", "r");
+    	if (fp4 == NULL)
+        	exit(EXIT_FAILURE);
+
+    	while ((read4 = getline(&line4, &len4, fp4)) != -1) {
+       	 	old = strtok(line4, ":");
+       	 	old = strtok(NULL, ":");
+       	 	oldArr[i]=atoi(old);
+       	 	//printf("Retrieved the oldie: %d\n", oldArr[i]);
+       	 	i++;
+   	 }
+   	 fclose(fp4);
+
+	///VISUALIZATION//
+	char graphDataLine[100];
+	char graphLabel[75];
+   	if (system("rm graph")== 0) {
+        	printf("The file is deleted successfully.\n");
+    	} 
+   	 
+   	FILE *grp;
+
+   	grp = fopen("graph","w");
+
+   	if(grp == NULL)
+   	{
+      		printf("Error writing!");   
+      		exit(1);             
+   	}
+
+   	fprintf(grp,"%s","graph G{\n");
+   	
+   	 
+   	 for(i=1; i<max; i++){
+   	 
+   	 //sprintf(graphLabel,"pid %d",pidArr[i]);
+   	 //printf("%s\n",graphLabel);
+   	 //sprintf(graphDataLine,"%d [label=%s]\n",pidArr[i],graphLabel);
+   	 //fprintf(grp,"%s",graphDataLine);
+   	 
+   	 if(oldArr[i]==-1){
+   	 sprintf(graphDataLine,"%d -- %d\n",ppidArr[i],pidArr[i]);
+   	 }else{
+   	 sprintf(graphDataLine,"%d -- %d\n%d [color=%s]\n",ppidArr[i],pidArr[i],oldArr[i],"red");
+   	 }
+   	 fprintf(grp,"%s",graphDataLine);
+   	 
+   	 }
+	fprintf(grp,"%s","}");   	 
+   	 
+   	 fclose(grp);
+	
+	system("cat graph | dot -Tpng > out.png");
+	
+	///REMOVE MODULE 
+	
+	if(!system("lsmod | grep mymodule")){
+	res = system("/sbin/rmmod ./mymodule.ko");
+    		if (res != 0) {
+        		fprintf(stderr, "Error removing module: %d\n", res);
+        		//return EXIT_FAILURE;
+    		}
+    		else{
+    		printf("Removed module\n");
+    		}
+	}
+	else{
+    	 	printf("No module to remove\n");
+    	}
+    	//How to hide this 
+	int a= system("dmesg -c");
+}
+  }
+  //Question 5 (PSVIS) ends
    // int c = count_command(command); Another way to calculate the number of pipes and processes is to call a function directly.
    // i = 1;
    
