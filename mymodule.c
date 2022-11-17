@@ -46,7 +46,7 @@ void simple_traverse(struct task_struct* task) {
     }
     printk("mymoduleOLD: %d \n",oldChildPID);
 	
-    //ITERATE
+    //ITERATE FOR MORE CHILD
     list_for_each(list, &task->children) {
     toturn = list_entry(list, struct task_struct, sibling);
     /* task now points to one of current's children */
@@ -63,11 +63,7 @@ int simple_init(void) { //MAIN
   struct task_struct *ts;
   
   ts = get_pid_task(find_get_pid(pid), PIDTYPE_PID);
-  //printk("Hello from the kernel, pid: %d\n",  pid);
-  //printk("command: %s\n", ts->comm);
-  //printk("PID: %d\n", ts->pid);
-  //printk("start time: %lld\n",ts->start_time);
-  
+
   simple_traverse(ts);
 	
   return 0;
