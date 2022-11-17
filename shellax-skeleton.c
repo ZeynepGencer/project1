@@ -630,7 +630,6 @@ int process_command(struct command_t *command) {
 
    	if (stat(path, &st) == -1) { //if fifo does not exist create one 
     	 mkfifo(path, S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH); // create pipe , S_IWUSR | S_IRUSR |S_IRGRP | S_IROTH
-    	 //printf("OH HELLO NEW USER");
 	}
 	int fd;
 	int fd1;
@@ -650,7 +649,8 @@ int process_command(struct command_t *command) {
         		fd1 = open(myfifo,O_RDONLY,O_NONBLOCK);
         		
         		int a= read(fd1, str1, 180);
-        		printf("\r%s", str1);
+        		str1[strlen(str1)-1]=' ';
+        		printf("\r%s                                          \n", str1);
         		printf("[%s] %s> ", command->args[1],command->args[2]);
         		fflush(stdout);
         		close(fd1);
@@ -781,10 +781,10 @@ int process_command(struct command_t *command) {
     	int res;
 
    	 /* Check if program being run by root */
-    	uid = getuid();
-    	if (uid != ROOT_UID) {
-    		system("sudo -s");
-    	}
+    	//uid = getuid();
+    	//if (uid != ROOT_UID) {
+    	//	system("sudo -s");
+    	//}
 
     	/* Check if module file exists */
     	if (access("./mymodule.ko", F_OK) == -1) {
@@ -795,7 +795,7 @@ int process_command(struct command_t *command) {
 	
     	/* Load module */
     	char str[100];
-    	sprintf(str,"/sbin/insmod ./mymodule.ko pid=%d",atoi(command->args[1]));
+    	sprintf(str,"sudo /sbin/insmod ./mymodule.ko pid=%d",atoi(command->args[1]));
 
     	res = system(str);
     		if (res != 0) {
@@ -808,9 +808,9 @@ int process_command(struct command_t *command) {
 	printf("Module is already loaded\n");
 	}
 	
-	system("dmesg | grep mymodulePID: > pid");
-	system("dmesg | grep mymoduleParentPID: > ppid");
-	system("dmesg | grep mymoduleTime > startTime");
+	system("sudo dmesg | grep mymodulePID: > pid");
+	system("sudo dmesg | grep mymoduleParentPID: > ppid");
+	system("sudo dmesg | grep mymoduleTime > startTime");
 	
 	
 	// READ PID ///
@@ -888,7 +888,7 @@ int process_command(struct command_t *command) {
    	 int max=i;
    	 //FIND OLDEST CHILD Uğrascam 
    	 
-   	 system("dmesg | grep mymoduleOLD > olds");
+   	 system("sudo dmesg | grep mymoduleOLD > olds");
    	 FILE * fp4;
     	char * line4 = NULL;
     	size_t len4 = 0;
@@ -959,7 +959,7 @@ int process_command(struct command_t *command) {
 	///REMOVE MODULE 
 	
 	if(!system("lsmod | grep mymodule")){
-	res = system("/sbin/rmmod ./mymodule.ko");
+	res = system("sudo /sbin/rmmod ./mymodule.ko");
     		if (res != 0) {
         		fprintf(stderr, "Error removing module: %d\n", res);
         		//return EXIT_FAILURE;
@@ -971,7 +971,7 @@ int process_command(struct command_t *command) {
 	else{
     	 	printf("No module to remove\n");
     	}
-	system("dmesg -C");
+	system("sudo dmesg -C");
 }
   }
   //Question 5 (PSVIS) ends
