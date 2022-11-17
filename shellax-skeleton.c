@@ -928,6 +928,11 @@ int process_command(struct command_t *command) {
    	fprintf(grp,"%s","graph G{\n");
    	//FOR THE FIRST OLDEST CHILD
    	 fprintf(grp,"%d [color=%s]\n",oldArr[0],"red");
+   	 
+   	 sprintf(graphLabel,"pid: %d\nstart time:%lld",pidArr[0],startArr[0] );
+   	 sprintf(graphDataLine,"%d [label=%s%s%s]\n",pidArr[0],"\"",graphLabel,"\"");
+   	 fprintf(grp,"%s",graphDataLine);
+   	 
    	 //REST OF CHILD NODES
    	 for(i=1; i<max; i++){
    	 
