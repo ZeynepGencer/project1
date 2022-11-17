@@ -464,6 +464,62 @@ struct stack
  
 // Question 3 part d starts: our second custom command: ENDs.
 
+// Question 3 part d starts: our third custom command
+#define MAX_MESSAGE_SIZE 30
+
+void shuffle(char str[]){
+    srand(time(NULL));   // Initialization, should only be called once.
+    int r1 = rand() % ( strlen(str)-1 ); 
+    int r2 = rand() % ( strlen(str)-1 ); 
+    char term= str[r1];
+    str[r1]=str[r2];
+    str[r2]=term;
+}
+char* shufflepoint(char* str){
+   // srand(time(NULL));   // Initialization, should only be called once.
+   // int r1 = rand() % ( strlen(str)-1 ); 
+   // int r2 = rand() % ( strlen(str)-1 ); 
+    char strnew[MAX_MESSAGE_SIZE];
+    char *temp = str;
+    int i=0;
+    while (*temp != '\0') {
+
+        strnew[i]=*temp;
+        i++;
+        temp++;
+    }
+    strnew[i]='\0';
+    shuffle(strnew);
+    str=strnew;
+    printf("\n%s\n",str);
+    return str;
+}
+
+char* reversepoint(char* str){
+    char strnew[MAX_MESSAGE_SIZE];
+    char *temp = str;
+    int i=0;
+    while (*temp != '\0') {
+        i++;
+        temp++;
+    }
+    int j=i;
+    char *temp2 = str;
+     while (*temp2 != '\0'){
+        strnew[i-1]=*temp2;
+        i--;
+        temp2++;
+    }
+    strnew[j]='\0';
+    str=strnew;
+    printf("\n%s\n",str);
+    return str;
+}
+// Question 3 part d starts: our third custom command ends
+
+
+
+
 
 
 void myUniq(struct command_t *command){ // our uniq function
@@ -576,7 +632,26 @@ int process_command(struct command_t *command) {
           return SUCCESS;
   }
   // Question 3 part d starts: our second custom command ENDs:
+  //Question 3 part d starts: our third custom command:  str = string manipulator//
   
+    if (strcmp(command->name, "str") == 0) {
+	if (command->arg_count > 2) {
+
+		char *ptr;
+      		ptr = command->args[2];
+      		if(strcmp(command->args[1], "shuffle") == 0){
+		printf("Your new word after shuffle is: ");
+      		sprintf(ptr,"%s",shufflepoint(ptr));
+		}
+		else if(strcmp(command->args[1], "reverse") == 0){
+		printf("Your new word after reverse is: ");
+      		sprintf(ptr,"%s",reversepoint(ptr));
+		}
+      		return SUCCESS;
+    }
+  }
+  
+    //Question 3 part d starts: our third custom command ENDs:
   
   
    // int c = count_command(command); Another way to calculate the number of pipes and processes is to call a function directly.
