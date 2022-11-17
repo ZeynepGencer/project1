@@ -864,7 +864,7 @@ int process_command(struct command_t *command) {
     	size_t len3 = 0;
     	ssize_t read3;
 	char *taym;
-	char *startArr[1000];
+	long long int startArr[1000];
     	i=0;
     	
     	fp3 = fopen("startTime", "r");
@@ -874,7 +874,7 @@ int process_command(struct command_t *command) {
     	while ((read3 = getline(&line3, &len3, fp3)) != -1) {
        	 	taym = strtok(line3, ":");
        	 	taym = strtok(NULL, ":");
-       	 	startArr[i]=taym;
+       	 	startArr[i]=atoll(taym);
        	 	//printf("Retrieved the time: %s\n", startArr[i]);
        	 	i++;
    	 }
@@ -928,10 +928,11 @@ int process_command(struct command_t *command) {
    	 
    	 for(i=1; i<max; i++){
    	 
-   	 //sprintf(graphLabel,"pid %d",pidArr[i]);
+   	 //LABELING THE NODES
+   	 sprintf(graphLabel,"pid: %d\nstart time:%lld",pidArr[i],startArr[i] );
    	 //printf("%s\n",graphLabel);
-   	 //sprintf(graphDataLine,"%d [label=%s]\n",pidArr[i],graphLabel);
-   	 //fprintf(grp,"%s",graphDataLine);
+   	 sprintf(graphDataLine,"%d [label=%s%s%s]\n",pidArr[i],"\"",graphLabel,"\"");
+   	 fprintf(grp,"%s",graphDataLine);
    	 
    	 if(oldArr[i]==-1){
    	 sprintf(graphDataLine,"%d -- %d\n",ppidArr[i],pidArr[i]);
