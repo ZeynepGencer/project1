@@ -14,7 +14,6 @@
 #include <dirent.h>
 #include <linux/module.h>    /* Definition of MODULE_* constants */
 #include <sys/syscall.h>     /* Definition of SYS_* constants */
-#define ROOT_UID    0
 const char *sysname = "shellax";
 
 enum return_codes {
@@ -651,6 +650,7 @@ int process_command(struct command_t *command) {
         		int a= read(fd1, str1, 180);
         		str1[strlen(str1)-1]=' ';
         		printf("\r%s                                          \n", str1);
+        		fflush(stdout);
         		printf("[%s] %s> ", command->args[1],command->args[2]);
         		fflush(stdout);
         		close(fd1);
@@ -667,7 +667,7 @@ int process_command(struct command_t *command) {
    		fgets( str3,180,stdin);
    		printf("\033[A");
    		fflush(stdout);
-   		sprintf(str2,"%s: %s",command->args[2],str3);
+   		sprintf(str2,"[%s] %s: %s",command->args[1],command->args[2],str3);
  
 		//GET PIPE COUNT 
 		char *arr[50];
@@ -780,12 +780,6 @@ int process_command(struct command_t *command) {
 	uid_t uid;
     	int res;
 
-   	 /* Check if program being run by root */
-    	//uid = getuid();
-    	//if (uid != ROOT_UID) {
-    	//	system("sudo -s");
-    	//}
-
     	/* Check if module file exists */
     	if (access("./mymodule.ko", F_OK) == -1) {
         	fprintf(stderr, "Error: File doesn't exist\n");
@@ -886,7 +880,7 @@ int process_command(struct command_t *command) {
 
    	 /// TIME READING OVER // 
    	 int max=i;
-   	 //FIND OLDEST CHILD Uğrascam 
+   	 //FIND OLDEST CHILD 
    	 
    	 system("sudo dmesg | grep mymoduleOLD > olds");
    	 FILE * fp4;
