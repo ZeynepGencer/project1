@@ -756,7 +756,7 @@ int process_command(struct command_t *command) {
   //Question 3 part d starts: our third custom command:  str = string manipulator//
   
     if (strcmp(command->name, "str") == 0) {
-	if (command->arg_count > 2) {
+	if (command->arg_count > 3) {
 
 		char *ptr;
       		ptr = command->args[2];
