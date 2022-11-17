@@ -651,7 +651,7 @@ int process_command(struct command_t *command) {
         		
         		int a= read(fd1, str1, 180);
         		printf("\r%s", str1);
-        		printf("%s> ", command->args[2]);
+        		printf("[%s] %s> ", command->args[1],command->args[2]);
         		fflush(stdout);
         		close(fd1);
 		}
@@ -725,12 +725,13 @@ int process_command(struct command_t *command) {
   // Question 3 part b (CHATROOM) ends.
    // Question 3 part c (WISEMAN) starts:
   if (strcmp(command->name, "wiseman") == 0){
-       
+       if (command->arg_count > 2) {
        // wiseman(command); //Our second solution for the wiseman question.
   	char ptr[100];
   	sprintf(ptr,"echo '*/%s * * * * fortune | espeak -s 125 -v en-uk+m5' | crontab -",command->args[1]); // for clearer voice
 	system(ptr);
 	//return SUCCESS;
+	}
   }
   // Question 3 part c (WISEMAN) ends.
   
