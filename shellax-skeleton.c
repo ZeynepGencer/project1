@@ -909,9 +909,7 @@ int process_command(struct command_t *command) {
 	///VISUALIZATION//
 	char graphDataLine[100];
 	char graphLabel[75];
-   	if (system("rm graph")== 0) {
-        	printf("The file is deleted successfully.\n");
-    	} 
+   	//system("rm graph")
    	 
    	FILE *grp;
 
@@ -924,8 +922,9 @@ int process_command(struct command_t *command) {
    	}
 
    	fprintf(grp,"%s","graph G{\n");
-   	
-   	 
+   	//FOR THE FIRST OLDEST CHILD
+   	 fprintf(grp,"%d [color=%s]\n",oldArr[0],"red");
+   	 //REST OF CHILD NODES
    	 for(i=1; i<max; i++){
    	 
    	 //LABELING THE NODES
